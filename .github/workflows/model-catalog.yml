@@ -30,7 +30,8 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install image decoder from official PyPI
-        run: python -m pip install --disable-pip-version-check --index-url https://pypi.org/simple --only-binary=:all: 'Pillow>=11,<14'
+        run: |
+          python -m pip install --disable-pip-version-check --index-url https://pypi.org/simple --only-binary=:all: 'Pillow>=11,<14'
       - name: Validate all model ZIPs and merge catalogs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
