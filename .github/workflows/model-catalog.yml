@@ -69,12 +69,3 @@ jobs:
           echo '::error::Could not publish the validated catalog after 3 safe attempts. Run the workflow again.'
           exit 1
 
-  # GITHUB_TOKEN commits do not trigger another push workflow. Call Pages explicitly.
-  # pages.yml must checkout ref: main to include the catalog committed above.
-  publish-website:
-    needs: update
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    uses: PZ099/input-showcase/.github/workflows/pages.yml@main

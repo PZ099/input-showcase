@@ -3,7 +3,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  workflow_call:
+  workflow_run:
+    workflows: [Update cloud model catalog]
+    types: [completed]
 permissions:
   contents: read
   pages: write
@@ -13,6 +15,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
+    # workflow_run uses the default-branch context, so model tags never need
+    # permission to deploy to the main-only github-pages environment.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
