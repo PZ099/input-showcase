@@ -48,8 +48,26 @@ jobs:
             echo 'Catalog already current.'
           else
             git commit -m "Update cloud models from $MODEL_TAG"
-            git push origin HEAD:main
           fi
+          for attempt in 1 2 3; do
+            if ! git fetch origin main:refs/remotes/origin/main; then
+              echo "::warning::Fetch failed (attempt $attempt/3)."
+              sleep "$((attempt * 2))"
+              continue
+            fi
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo '::error::Catalog rebase conflicts with main. Resolve the content conflict before retrying; no force push was attempted.'
+              exit 1
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "::warning::Push failed or main advanced (attempt $attempt/3)."
+            sleep "$((attempt * 2))"
+          done
+          echo '::error::Could not publish the validated catalog after 3 safe attempts. Run the workflow again.'
+          exit 1
 
   # GITHUB_TOKEN commits do not trigger another push workflow. Call Pages explicitly.
   # pages.yml must checkout ref: main to include the catalog committed above.

@@ -261,12 +261,37 @@ def merge_website(existing, catalog, previews):
     for entry in catalog["models"]:
         key = entry["kind"], entry["id"]
         item = by_id.setdefault(key, {"id": entry["id"], "kind": entry["kind"], "outline": entry["preview"]["url"], "width": 256, "height": 192, "atlas": None, "atlasThumb": None})
+        previous_revision = item.get("cloudRevision")
+        changed_revision = previous_revision is not None and previous_revision != entry["revision"]
+        available = previews.get(key, {})
+        if changed_revision:
+            # An atlas or rear image from another calibrated revision must never
+            # appear to document the new model. First-time legacy migration below
+            # deliberately preserves its existing, reviewed visual assets.
+            front = available.get("front") or entry.get("preview")
+            item.update(outline=front.get("url") if front else None, width=256, height=192)
+            rear = available.get("rear")
+            item.update(rear=rear.get("url") if rear else None, rearWidth=256 if rear else None, rearHeight=192 if rear else None)
+            for field in list(item):
+                if field.startswith("atlas"):
+                    del item[field]
+            item.update(atlas=None, atlasThumb=None)
         # Normalize every old and new member, since legacy site family keys had another format.
         for field in ("name", "brand", "familyKey", "familyName"):
             item[field] = entry[field]
         item["versionLabel"] = entry["versionName"]
-        if key in previews and previews[key].get("rear") and not item.get("rear"):
-            item.update(rear=previews[key]["rear"]["url"], rearWidth=256, rearHeight=192)
+        item["cloudRevision"] = entry["revision"]
+        if available.get("rear") and not item.get("rear"):
+            item.update(rear=available["rear"]["url"], rearWidth=256, rearHeight=192)
+        item["atlasAvailable"] = bool(item.get("atlas"))
+        if item["atlasAvailable"]:
+            item.pop("atlasUnavailableReason", None)
+        else:
+            item["atlasUnavailableReason"] = "此版本尚未提供图集"
+        if entry["kind"] == "controller" and not item.get("rear"):
+            item["rearUnavailableReason"] = "此版本尚未提供背面图"
+        else:
+            item.pop("rearUnavailableReason", None)
     result["models"] = sorted(by_id.values(), key=lambda item: (item["kind"], item.get("brand", ""), item["name"], item["id"]))
     result["totalModels"] = len(result["models"])
     result["atlasCount"] = sum(bool(item.get("atlas")) for item in result["models"] + result.get("keyboards", []))
