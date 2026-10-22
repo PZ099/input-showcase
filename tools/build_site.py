@@ -40,6 +40,16 @@ for name in ['index.html','style.css','app.js','demo.js','models.json','.nojekyl
     shutil.copyfile(core/name,output/name)
 cloud=source/'cloud' if (source/'cloud').is_dir() else core/'cloud'
 if cloud.is_dir(): shutil.copytree(cloud,output/'cloud',dirs_exist_ok=True)
+def version(name):
+    return hashlib.sha256((output/name).read_bytes()).hexdigest()[:12]
+app=(output/'app.js').read_text(encoding='utf-8-sig')
+app=app.replace("'./demo.js'", "'./demo.js?v="+version('demo.js')+"'", 1)
+app=app.replace("fetch('models.json'", "fetch('models.json?v="+version('models.json')+"'", 1)
+(output/'app.js').write_text(app,encoding='utf-8')
+html=(output/'index.html').read_text(encoding='utf-8-sig')
+html=html.replace('href="style.css"','href="style.css?v='+version('style.css')+'"',1)
+html=html.replace('src="app.js"','src="app.js?v='+version('app.js')+'"',1)
+(output/'index.html').write_text(html,encoding='utf-8')
 models=json.loads((output/'models.json').read_text(encoding='utf-8-sig'))['models']
 for m in models:
     for field in ['outline','rear','atlas','atlasThumb']:
