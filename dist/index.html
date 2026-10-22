@@ -6,6 +6,15 @@
   <meta name="theme-color" content="#0c1017">
   <meta name="description" content="INPUT，Windows 键鼠与手柄输入显示工具。操作演示、模型库与写实轮廓图集。">
   <title>INPUT</title>
+  <script>
+    history.scrollRestoration = 'manual';
+    if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
+    addEventListener('pageshow', () => {
+      document.documentElement.style.scrollBehavior = 'auto';
+      scrollTo(0, 0);
+      requestAnimationFrame(() => document.documentElement.style.scrollBehavior = '');
+    });
+  </script>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.js"></script>
