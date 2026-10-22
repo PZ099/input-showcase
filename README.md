@@ -1,2 +1,17 @@
-# input-showcase
-INPUT — Windows keyboard, mouse and controller input overlay. Device library and visual atlas.
+# INPUT
+
+Windows 键盘、鼠标与手柄输入显示工具的介绍网站、交互演示及模型图集。
+
+网站包含 79 款鼠标、89 款手柄，按品牌和系列浏览；相近版本在系列内切换。图集还包含身法、完整作战两套键位。部分产品图为示意，详情与原图中保留标记。
+
+网页演示仅响应页面内操作。桌面工具与模型下载是独立程序功能。
+
+## 网站
+
+这是无构建步骤的静态站点。将本目录通过普通静态服务器提供即可预览。GitHub Pages 使用 `main` 分支根目录。
+
+入口为 `index.html`，模型索引为 `models.json`，图片来源说明在 `assets/atlas/sources.txt`。
+
+## 素材
+
+产品名称与商标属于各自权利人。图集沿用 INPUT 中的外观参考、轮廓及程序反馈示例；来源说明随图集保留。

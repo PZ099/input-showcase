@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c1017">
+  <meta name="description" content="INPUT，Windows 键鼠与手柄输入显示工具。操作演示、模型库与写实轮廓图集。">
+  <title>INPUT</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <div class="model-wall" id="model-wall" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="INPUT 首页"><img src="assets/logo.svg" width="35" height="35" alt=""><span>INPUT<span class="brand-period">.</span></span></a>
+    <nav aria-label="主导航"><a href="#demo">演示</a><a href="#models">模型库</a></nav>
+    <a class="repo-link" href="https://github.com/PZ099/input-showcase" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="main">
+    <section class="hero section-width">
+      <div class="hero-copy">
+        <h1>INPUT<span class="brand-period">.</span></h1>
+        <p class="hero-intro">键鼠 · 手柄输入显示</p>
+        <div class="hero-actions"><a class="button primary" href="#demo">演示 <span aria-hidden="true">↗</span></a><a class="button text-button" href="#models">模型库 <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <div class="hero-art" aria-label="G502 X、Viper V3、ROG Harpe、DualSense、Xbox Elite 和飞智八爪鱼轮廓展示">
+        <div class="art-grid"></div><div class="art-orbit"></div>
+        <div id="hero-models"></div>
+        <span class="art-cross cross-a">+</span><span class="art-cross cross-b">+</span>
+      </div>
+    </section>
+
+    <section id="demo" class="section-width demo-section reveal">
+      <div class="section-heading"><h2>演示</h2></div>
+      <div class="demo-shell">
+        <div class="demo-topbar"><div class="segmented" role="tablist" aria-label="演示输入类型"><button type="button" role="tab" data-demo-mode="keyboard" aria-selected="true">键盘与鼠标</button><button type="button" role="tab" data-demo-mode="controller" aria-selected="false">手柄</button></div><button id="demo-play" class="quiet-button" type="button">播放演示</button></div>
+        <div id="demo-stage" tabindex="0" aria-label="操作演示"></div>
+        <div class="demo-bottom"><p id="demo-hint">网页演示</p></div>
+      </div>
+    </section>
+
+    <section id="models" class="section-width models-section reveal">
+      <div class="section-heading"><h2>模型库</h2></div>
+      <div class="library-shell">
+        <div class="library-toolbar"><div class="segmented" role="tablist" aria-label="模型类别"><button type="button" data-kind="controller" role="tab" aria-selected="true" aria-controls="model-grid">手柄</button><button type="button" data-kind="mouse" role="tab" aria-selected="false" aria-controls="model-grid">鼠标</button></div><label class="search"><span aria-hidden="true">⌕</span><input id="model-search" type="search" placeholder="搜索品牌或型号" autocomplete="off" aria-label="搜索品牌或型号"></label></div>
+        <div class="brand-filters" id="brand-filters" aria-label="品牌筛选"></div>
+        <div class="library-status"><span id="library-label">全部手柄</span><button type="button" id="card-view" class="quiet-button" aria-pressed="false">图集预览</button></div>
+        <div class="model-grid" id="model-grid" aria-live="polite"><p class="empty-state">正在加载模型库…</p></div>
+        <div class="library-footer"><span></span><button type="button" id="library-top" class="quiet-button">回到顶部 ↑</button></div>
+      </div>
+    </section>
+
+  </main>
+  <footer class="site-footer section-width"><a class="brand" href="#"><img src="assets/logo.svg" width="28" height="28" alt=""><span>INPUT<span class="brand-period">.</span></span></a><a href="https://github.com/PZ099/input-showcase" target="_blank" rel="noopener">GitHub ↗</a></footer>
+
+  <dialog id="model-dialog" aria-labelledby="detail-title">
+    <div class="detail-header"><div><p class="eyebrow" id="detail-brand"></p><h2 id="detail-title"></h2></div><button type="button" id="detail-close" class="icon-button" aria-label="关闭型号详情">×</button></div>
+    <div class="detail-versions" id="detail-versions" aria-label="版本型号"></div>
+    <div class="detail-tabs segmented" role="tablist" aria-label="图片类型"><button type="button" data-view="outline" role="tab" aria-selected="true">轮廓</button><button type="button" data-view="atlas" role="tab" aria-selected="false">写实与轮廓图集</button></div>
+    <div class="detail-visual" id="detail-visual"></div>
+    <div class="detail-footer"><p id="detail-note"></p><a id="atlas-open" target="_blank" rel="noopener" class="quiet-button">打开完整图集 ↗</a></div>
+  </dialog>
+</body>
+</html>
