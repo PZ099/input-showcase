@@ -1,6 +1,12 @@
 # INPUT
 
-Windows 键盘、鼠标与手柄输入显示工具的介绍网站、交互演示及模型图集。
+Windows 键盘、鼠标与手柄输入显示工具，适合游戏直播、Apex 身法教学和操作录制。
+
+[网站与下载](https://pz099.github.io/input-showcase/) · [交互演示](https://pz099.github.io/input-showcase/#demo) · [模型库与图集](https://pz099.github.io/input-showcase/#models)
+
+支持实时按键、鼠标侧键与滚轮、鼠标移动方向，以及手柄摇杆、肩键、扳机和背键反馈。直播模式可锁定窗口并穿透点击，键鼠与手柄窗口可独立移动。安装包名称为 **INPUT Setup.exe**。
+
+内置 G502、GPW 二代、DualSense、DualSense Edge 四款默认模型，其余型号在软件内按需下载；支持“已下载”筛选与离线使用。云端模型发布后，软件自动检查目录更新。
 
 网站包含 79 款鼠标、89 款手柄，按品牌和系列浏览；相近版本在系列内切换。图集还包含身法、完整作战两套键位。部分产品图为示意，详情与原图中保留标记。
 
@@ -8,9 +14,11 @@ Windows 键盘、鼠标与手柄输入显示工具的介绍网站、交互演示
 
 ## 网站
 
-这是无构建步骤的静态站点。将本目录通过普通静态服务器提供即可预览。GitHub Pages 使用 `main` 分支根目录。
+GitHub Pages 使用 Actions 从 `main` 发布。`tools/build_site.py` 校验并装配图集资源与安装包；安装包从同源下载，保留 `INPUT Setup.exe` 文件名。静态文件位于 `dist/`。
 
 入口为 `index.html`，模型索引为 `models.json`，图片来源说明在 `assets/atlas/sources.txt`。
+
+首页含可直接读取的用途简介、摘要、规范地址和软件结构化数据。[站点地图](https://pz099.github.io/input-showcase/sitemap.xml)仅包含真实网页地址；IndexNow 验证文件位于项目目录。
 
 ## 素材
 

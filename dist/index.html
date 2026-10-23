@@ -4,8 +4,39 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0c1017">
-  <meta name="description" content="INPUT，Windows 键鼠与手柄输入显示工具。操作演示、模型库与写实轮廓图集。">
-  <title>INPUT</title>
+  <meta name="description" content="INPUT 是 Windows 键盘、鼠标与手柄输入显示工具，适合游戏直播、Apex 身法教学和操作录制。支持实时按键、鼠标滚轮与方向、摇杆与扳机反馈，提供设备模型库、写实图集和安装包下载。">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <title>INPUT 输入显示工具｜键盘、鼠标与手柄按键显示</title>
+  <link rel="canonical" href="https://pz099.github.io/input-showcase/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="INPUT｜键盘、鼠标与手柄输入显示工具">
+  <meta property="og:description" content="让直播与教学中的操作看得见。实时按键显示、设备模型库、写实图集与 Windows 安装包。">
+  <meta property="og:url" content="https://pz099.github.io/input-showcase/">
+  <meta property="og:image" content="https://pz099.github.io/input-showcase/icon.png">
+  <meta property="og:image:alt" content="INPUT 标志">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="INPUT｜键鼠与手柄输入显示">
+  <meta name="twitter:description" content="Windows 实时输入显示工具，适合游戏直播、Apex 身法教学和操作录制。">
+  <meta name="twitter:image" content="https://pz099.github.io/input-showcase/icon.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": "https://pz099.github.io/input-showcase/#software",
+    "name": "INPUT",
+    "alternateName": "INPUT 输入显示工具",
+    "description": "Windows 键盘、鼠标与手柄输入显示工具，适合游戏直播、Apex 身法教学和操作录制。支持实时按键、鼠标滚轮与移动方向、手柄摇杆与扳机反馈，以及按需下载设备模型。",
+    "url": "https://pz099.github.io/input-showcase/",
+    "downloadUrl": "https://pz099.github.io/input-showcase/downloads/INPUT%20Setup.exe",
+    "image": "https://pz099.github.io/input-showcase/icon.png",
+    "operatingSystem": "Windows 10, Windows 11",
+    "applicationCategory": "UtilitiesApplication",
+    "inLanguage": "zh-CN",
+    "softwareVersion": "1.0.0.0",
+    "featureList": ["键盘与鼠标输入显示", "手柄摇杆、肩键与扳机反馈", "直播模式与锁定穿透", "按需下载设备模型", "写实与轮廓图集"]
+  }
+  </script>
   <script>
     history.scrollRestoration = 'manual';
     if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
@@ -32,7 +63,8 @@
       <div class="hero-copy">
         <h1>INPUT<span class="brand-period">.</span></h1>
         <p class="hero-intro">键鼠 · 手柄输入显示</p>
-        <div class="hero-actions"><a class="button primary" href="https://github.com/PZ099/input-showcase/releases/download/v1.0.0/INPUT-Setup-1.0.0.0.exe">下载 <span aria-hidden="true">↓</span></a><a class="button text-button" href="#demo">演示 <span aria-hidden="true">↗</span></a></div>
+        <p class="hero-description">Windows 实时输入显示工具，适合游戏直播、Apex 身法教学与操作录制。按键、滚轮、摇杆和扳机，操作看得见。</p>
+        <div class="hero-actions"><a class="button primary" href="downloads/INPUT%20Setup.exe" download="INPUT Setup.exe">下载 <span aria-hidden="true">↓</span></a><a class="button text-button" href="#demo">演示 <span aria-hidden="true">↗</span></a></div>
       </div>
       <div class="hero-art" aria-label="G502 X、Viper V3、ROG Harpe、DualSense、Xbox Elite 和飞智八爪鱼轮廓展示">
         <div class="art-grid"></div><div class="art-orbit"></div>
@@ -52,6 +84,7 @@
 
     <section id="models" class="section-width models-section reveal">
       <div class="section-heading"><h2>模型库</h2></div>
+      <p class="library-intro">从罗技 G502、GPW 到 DualSense、Xbox Elite，按品牌和系列查看设备轮廓与写实图集。软件内可按需下载模型，已下载的型号可离线使用。</p>
       <div class="library-shell">
         <div class="library-toolbar"><div class="segmented" role="tablist" aria-label="模型类别"><button type="button" data-kind="controller" role="tab" aria-selected="true" aria-controls="model-grid">手柄</button><button type="button" data-kind="mouse" role="tab" aria-selected="false" aria-controls="model-grid">鼠标</button></div><label class="search"><span aria-hidden="true">⌕</span><input id="model-search" type="search" placeholder="搜索品牌或型号" autocomplete="off" aria-label="搜索品牌或型号"></label></div>
         <div class="brand-filters" id="brand-filters" aria-label="品牌筛选"></div>
