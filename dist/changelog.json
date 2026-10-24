@@ -1,6 +1,17 @@
 {
   "releases": [
     {
+      "version": "1.0.6",
+      "status": "released",
+      "title": "模型细化与显示映射",
+      "changes": [
+        "复核 168 款模型，修正鼠标按键边界与手柄方向键。",
+        "新增四种键盘外观，手柄可按型号学习和保存显示映射。",
+        "减少固定图形重复计算，优化移动反馈的局部刷新。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.6"
+    },
+    {
       "version": "1.0.5",
       "status": "released",
       "title": "降低运行占用",
@@ -19,16 +30,6 @@
         "断网重启可查看已缓存图标，完整模型仍按需下载。"
       ],
       "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.4"
-    },
-    {
-      "version": "1.0.3",
-      "status": "released",
-      "title": "设置与背键映射",
-      "changes": [
-        "加快设置打开，保留浏览位置，减少滚动停顿。",
-        "新增按型号保存的背键显示映射，可选正背同时亮。"
-      ],
-      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.3"
     }
   ]
 }

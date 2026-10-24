@@ -88,13 +88,16 @@ function openGroup(group, button) {
 }
 function renderDetail() {
   const m = state.model; if (!m) return;
+  const atlasUrl = m.atlas || m.previousAtlas?.url;
+  const previousAtlas = !m.atlas && Boolean(m.previousAtlas?.url);
   $('#detail-versions').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === m.id));
-  const atlasButton = $('[data-view="atlas"]'); atlasButton.disabled = !m.atlas;
-  if (state.view === 'atlas' && !m.atlas) state.view = 'outline';
+  const atlasButton = $('[data-view="atlas"]'); atlasButton.disabled = !atlasUrl;
+  atlasButton.textContent = previousAtlas ? '旧版图集' : '图集';
+  if (state.view === 'atlas' && !atlasUrl) state.view = 'outline';
   document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.view === state.view));
   const visual = $('#detail-visual'), fragment = document.createDocumentFragment();
-  if (state.view === 'atlas' && m.atlas) {
-    const img = make('img', 'atlas-image'); img.src = m.atlas; img.alt = `${m.name} 写实与轮廓对照图集`; img.decoding = 'async'; fragment.append(img);
+  if (state.view === 'atlas' && atlasUrl) {
+    const img = make('img', 'atlas-image'); img.src = atlasUrl; img.alt = `${m.name} ${previousAtlas ? '旧版' : ''}写实与轮廓对照图集`; img.decoding = 'async'; fragment.append(img);
   } else {
     [[m.outline, '正面'], [m.rear, '背面']].forEach(([src, label]) => {
       if (!src) return; const fig = make('figure'), img = make('img'); img.src = src; img.alt = `${m.name} ${label}轮廓`; img.decoding = 'async'; fig.append(img, make('figcaption', '', label)); fragment.append(fig);
@@ -102,7 +105,8 @@ function renderDetail() {
   }
   visual.replaceChildren(fragment);
   $('#detail-note').textContent = m.frontSchematic || m.rearSchematic ? '此型号含示意图；图集保留原有标注。' : state.view === 'atlas' ? '产品写实与轮廓对照。' : m.rear ? '背面已按工具显示方向镜像。' : '设备正面轮廓。';
-  $('#atlas-open').hidden = !m.atlas; if (m.atlas) $('#atlas-open').href = m.atlas;
+  if (state.view === 'atlas' && previousAtlas) $('#detail-note').textContent = '旧版图集；轮廓细节以当前模型为准。' + (m.frontSchematic || m.rearSchematic ? ' 含示意图。' : '');
+  $('#atlas-open').hidden = !atlasUrl; if (atlasUrl) $('#atlas-open').href = atlasUrl;
 }
 document.querySelectorAll('[data-kind]').forEach(button => button.addEventListener('click', () => {
   state.kind = button.dataset.kind; state.brand = '全部';
