@@ -55,7 +55,7 @@
   <div class="model-wall" id="model-wall" aria-hidden="true"></div>
   <header class="site-header">
     <a class="brand" href="#" aria-label="INPUT 首页"><img src="assets/logo.svg" width="35" height="35" alt=""><span>INPUT<span class="brand-period">.</span></span></a>
-    <nav aria-label="主导航"><a href="#demo">演示</a><a href="#models">模型库</a></nav>
+    <nav aria-label="主导航"><a href="#demo">演示</a><a href="#models">模型库</a><a href="#changelog">更新日志</a></nav>
     <a class="repo-link" href="https://github.com/PZ099/input-showcase" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
   </header>
   <main id="main">
@@ -93,6 +93,32 @@
         <div class="library-footer"><span></span><button type="button" id="library-top" class="quiet-button">回到顶部 ↑</button></div>
       </div>
     </section>
+
+    <!-- CHANGELOG:START -->
+    <section id="changelog" class="section-width changelog-section reveal" aria-labelledby="changelog-title">
+      <div class="section-heading"><h2 id="changelog-title">更新日志</h2><p class="changelog-note">最近三个版本</p></div>
+      <div class="release-grid">
+        <article class="release-card is-latest" aria-labelledby="release-1.0.5">
+          <div class="release-version"><h3 id="release-1.0.5">1.0.5</h3><span class="release-latest">最新</span></div>
+          <p class="release-title">降低运行占用</p>
+          <ul class="release-changes"><li>画面不变时减少重复刷新。</li><li>缓存手柄布局与模型缩放，降低绘制开销。</li></ul>
+          <a class="release-link" href="https://github.com/PZ099/input-showcase/releases/tag/v1.0.5" target="_blank" rel="noopener" aria-label="查看 INPUT 1.0.5 发布详情">发布详情 <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="release-card" aria-labelledby="release-1.0.4">
+          <div class="release-version"><h3 id="release-1.0.4">1.0.4</h3></div>
+          <p class="release-title">图标离线缓存</p>
+          <ul class="release-changes"><li>模型图标独立缓存，删除模型后仍保留。</li><li>断网重启可查看已缓存图标，完整模型仍按需下载。</li></ul>
+          <a class="release-link" href="https://github.com/PZ099/input-showcase/releases/tag/v1.0.4" target="_blank" rel="noopener" aria-label="查看 INPUT 1.0.4 发布详情">发布详情 <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="release-card" aria-labelledby="release-1.0.3">
+          <div class="release-version"><h3 id="release-1.0.3">1.0.3</h3></div>
+          <p class="release-title">设置与背键映射</p>
+          <ul class="release-changes"><li>加快设置打开，保留浏览位置，减少滚动停顿。</li><li>新增按型号保存的背键显示映射，可选正背同时亮。</li></ul>
+          <a class="release-link" href="https://github.com/PZ099/input-showcase/releases/tag/v1.0.3" target="_blank" rel="noopener" aria-label="查看 INPUT 1.0.3 发布详情">发布详情 <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+    </section>
+    <!-- CHANGELOG:END -->
 
   </main>
   <footer class="site-footer section-width"><a class="brand" href="#"><img src="assets/logo.svg" width="28" height="28" alt=""><span>INPUT<span class="brand-period">.</span></span></a><a href="https://github.com/PZ099/input-showcase" target="_blank" rel="noopener">GitHub ↗</a></footer>

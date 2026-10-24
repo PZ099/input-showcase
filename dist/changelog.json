@@ -1,0 +1,34 @@
+{
+  "releases": [
+    {
+      "version": "1.0.5",
+      "status": "released",
+      "title": "降低运行占用",
+      "changes": [
+        "画面不变时减少重复刷新。",
+        "缓存手柄布局与模型缩放，降低绘制开销。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.5"
+    },
+    {
+      "version": "1.0.4",
+      "status": "released",
+      "title": "图标离线缓存",
+      "changes": [
+        "模型图标独立缓存，删除模型后仍保留。",
+        "断网重启可查看已缓存图标，完整模型仍按需下载。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.4"
+    },
+    {
+      "version": "1.0.3",
+      "status": "released",
+      "title": "设置与背键映射",
+      "changes": [
+        "加快设置打开，保留浏览位置，减少滚动停顿。",
+        "新增按型号保存的背键显示映射，可选正背同时亮。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.3"
+    }
+  ]
+}

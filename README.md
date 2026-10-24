@@ -18,6 +18,8 @@ GitHub Pages 使用 Actions 从 `main` 发布。`tools/build_site.py` 校验并�
 
 入口为 `index.html`，模型索引为 `models.json`，图片来源说明在 `assets/atlas/sources.txt`。
 
+首页的[更新日志](https://pz099.github.io/input-showcase/#changelog)只显示最近三个已发布版本。发布后更新 `changelog.json`，运行 `python tools/update_changelog.py --site dist` 即可生成静态内容；网站构建时也会自动生成。按版本号排序，最多保留三条，未标为 `released` 的条目不显示。日志正文直接写入 HTML，无需等待脚本或网络加载。
+
 首页含可直接读取的用途简介、摘要、规范地址和软件结构化数据。[站点地图](https://pz099.github.io/input-showcase/sitemap.xml)仅包含真实网页地址；IndexNow 验证文件位于项目目录。
 
 ## 素材

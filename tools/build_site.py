@@ -1,5 +1,6 @@
 import argparse,hashlib,json,shutil,urllib.request,zipfile
 from pathlib import Path
+from update_changelog import update_changelog
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--source',default='.')
@@ -39,6 +40,7 @@ with zipfile.ZipFile(archive) as z:
 core=source/'dist' if (source/'dist/index.html').is_file() else source
 for name in ['index.html','style.css','app.js','demo.js','models.json','.nojekyll','sitemap.xml','icon.png']:
     shutil.copyfile(core/name,output/name)
+update_changelog(output, core/'changelog.json')
 # Public IndexNow verification files live beside the project homepage.
 for key_file in core.glob('*.txt'):
     if len(key_file.stem)==32 and all(c in '0123456789abcdef' for c in key_file.stem):
