@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODEL_TAG: ${{ inputs.tag || github.event.release.tag_name }}
-        run: python tools/update_catalog.py --tag "$MODEL_TAG" --renderer-version 1
+        run: python tools/update_catalog.py --tag "$MODEL_TAG" --renderer-version 2
       - name: Commit validated catalog to main
         env:
           MODEL_TAG: ${{ inputs.tag || github.event.release.tag_name }}

@@ -210,6 +210,23 @@ def validate_package(blob, asset, renderer_version=1):
     return {"model": model, "members": members, "package": {"url": asset["browser_download_url"], "sha256": sha(blob), "bytes": len(blob), "expandedBytes": sum(map(len, members.values())), "fileCount": len(members)}}
 
 
+def preview_descriptor(data, asset):
+    """Validate the already-published PNG itself; never infer its aspect ratio."""
+    require(0 < len(data) <= 8 << 20 and len(data) == asset["size"], "Preview byte count mismatch")
+    if asset.get("digest"):
+        require(asset["digest"].lower() == "sha256:" + sha(data), "Preview GitHub asset digest mismatch")
+    with png(data) as image:
+        width, height = image.size
+        require(width <= 2048 and height <= 2048, "Preview exceeds client image limits")
+    return {"url": asset["browser_download_url"], "sha256": sha(data), "bytes": len(data), "width": width, "height": height}
+
+
+def client_version(value):
+    require(isinstance(value, str) and re.fullmatch(r"[0-9]+(?:\.[0-9]+){2,3}", value), "Invalid minimum client version")
+    parts = tuple(map(int, value.split(".")))
+    return parts + (0,) * (4 - len(parts))
+
+
 def outline_preview(validated, rear=False):
     model, members = validated["model"], validated["members"]
     roles = ("rearRealistic", "rear") if rear else ("realistic", "outline") if model["kind"] == "mouse" else ("frontRealistic", "front")
@@ -247,6 +264,9 @@ def merge_catalog(existing, updates):
         require(not old or old["revision"] != entry["revision"] or old["package"]["sha256"] == entry["package"]["sha256"], "Revision is immutable: change revision when model package changes")
         merged[key] = entry
     result = dict(existing)
+    required_client = "1.0.6" if any(e["minimumRendererVersion"] >= 2 for e in merged.values()) else "1.0.0"
+    current_client = existing.get("minimumClientVersion", "1.0.0")
+    result["minimumClientVersion"] = max((current_client, required_client), key=client_version)
     result["models"] = sorted(merged.values(), key=lambda item: (item["kind"], item["brand"], item["name"], item["id"]))
     result["counts"] = {"mouse": sum(e["kind"] == "mouse" for e in result["models"]), "controller": sum(e["kind"] == "controller" for e in result["models"]), "total": len(result["models"])}
     result["revision"] = sha(canonical(result["models"]))[:20]
@@ -260,29 +280,36 @@ def merge_website(existing, catalog, previews):
     by_id = {(item["kind"], item["id"]): dict(item) for item in existing.get("models", [])}
     for entry in catalog["models"]:
         key = entry["kind"], entry["id"]
-        item = by_id.setdefault(key, {"id": entry["id"], "kind": entry["kind"], "outline": entry["preview"]["url"], "width": 256, "height": 192, "atlas": None, "atlasThumb": None})
+        item = by_id.setdefault(key, {"id": entry["id"], "kind": entry["kind"], "outline": entry["preview"]["url"], "width": entry["preview"].get("width"), "height": entry["preview"].get("height"), "atlas": None, "atlasThumb": None})
         previous_revision = item.get("cloudRevision")
-        changed_revision = previous_revision is not None and previous_revision != entry["revision"]
+        changed_revision = previous_revision != entry["revision"] and (previous_revision is not None or entry["minimumRendererVersion"] >= 2)
         available = previews.get(key, {})
         if changed_revision:
             # An atlas or rear image from another calibrated revision must never
             # appear to document the new model. First-time legacy migration below
             # deliberately preserves its existing, reviewed visual assets.
             front = available.get("front") or entry.get("preview")
-            item.update(outline=front.get("url") if front else None, width=256, height=192)
+            require(front and type(front.get("width")) is int and type(front.get("height")) is int, "Updated preview is missing verified PNG dimensions")
+            item.update(outline=front["url"], width=front["width"], height=front["height"])
             rear = available.get("rear")
-            item.update(rear=rear.get("url") if rear else None, rearWidth=256 if rear else None, rearHeight=192 if rear else None)
+            item.update(rear=rear.get("url") if rear else None, rearWidth=rear.get("width") if rear else None, rearHeight=rear.get("height") if rear else None)
+            if item.get("atlas"):
+                item["previousAtlas"] = {"url": item["atlas"], "thumb": item.get("atlasThumb"), "revision": previous_revision, "width": item.get("atlasWidth"), "height": item.get("atlasHeight")}
             for field in list(item):
                 if field.startswith("atlas"):
                     del item[field]
             item.update(atlas=None, atlasThumb=None)
+        if available.get("front") and not changed_revision:
+            front = available["front"]
+            require(type(front.get("width")) is int and type(front.get("height")) is int, "Preview is missing verified PNG dimensions")
+            item.update(outline=front["url"], width=front["width"], height=front["height"])
         # Normalize every old and new member, since legacy site family keys had another format.
         for field in ("name", "brand", "familyKey", "familyName"):
             item[field] = entry[field]
         item["versionLabel"] = entry["versionName"]
         item["cloudRevision"] = entry["revision"]
         if available.get("rear") and not item.get("rear"):
-            item.update(rear=available["rear"]["url"], rearWidth=256, rearHeight=192)
+            item.update(rear=available["rear"]["url"], rearWidth=available["rear"]["width"], rearHeight=available["rear"]["height"])
         item["atlasAvailable"] = bool(item.get("atlas"))
         if item["atlasAvailable"]:
             item.pop("atlasUnavailableReason", None)
@@ -341,7 +368,7 @@ class GitHub:
                 url = urllib.parse.urlsplit(asset["browser_download_url"])
                 require(url.scheme == "https" and url.hostname == "github.com" and urllib.parse.unquote(url.path).startswith(f"/{self.repository}/releases/download/"), "Preview URL is outside this repository")
                 require(sha(request_bytes(asset["browser_download_url"], len(data))) == sha(data), "Existing preview bytes differ")
-            return {"url": asset["browser_download_url"], "sha256": sha(data), "bytes": len(data)}
+            return preview_descriptor(data, asset)
         old = next((asset for asset in release["assets"] if asset["name"] == name), None)
         if old:
             return descriptor(old)
@@ -385,7 +412,7 @@ def main():
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", REPOSITORY))
     parser.add_argument("--tag", required=True)
     parser.add_argument("--root", type=Path, default=Path("."))
-    parser.add_argument("--renderer-version", type=int, default=1)
+    parser.add_argument("--renderer-version", type=int, default=2)
     args = parser.parse_args()
     require(re.fullmatch(r"models-[A-Za-z0-9_.-]{1,100}", args.tag), "Release tag must start with models-")
     github = GitHub(args.repository)
@@ -396,7 +423,8 @@ def main():
     site_path = args.root / "dist/models.json"
     site = read_json(site_path.read_bytes()) if site_path.exists() else {"models": []}
     pending, seen = [], set()
-    # Validate the complete batch, and generate every outline, before any remote write.
+    # Validate the complete batch and any provided preview before remote writes.
+    # Exact reviewed previews are immutable Release assets; reuse rather than redraw.
     for asset in assets:
         validated = validate_package(fetch_asset(asset, args.repository, args.tag), asset, args.renderer_version)
         model = validated["model"]; key = model["kind"], model["id"]
@@ -405,16 +433,26 @@ def main():
         entry = {"id": model["id"], "kind": model["kind"], "revision": model["revision"], "minimumRendererVersion": model["minimumRendererVersion"], "package": validated["package"]}
         entry.update({key: model["metadata"][key] for key in ("name", "brand", "familyKey", "familyName", "versionName")})
         entry["contentSha256"] = sha(canonical(model))
-        pending.append((entry, outline_preview(validated), outline_preview(validated, True) if model["kind"] == "controller" else None))
+        preview_name = f"preview-{model['kind']}-{model['id']}-{model['revision']}.png"
+        provided = [item for item in release["assets"] if item["name"] == preview_name]
+        require(len(provided) <= 1, "Duplicate canonical preview asset")
+        if provided:
+            asset_preview = provided[0]
+            require(0 < asset_preview["size"] <= 8 << 20, "Provided preview exceeds limits")
+            descriptor = preview_descriptor(fetch_asset(asset_preview, args.repository, args.tag), asset_preview)
+            pending.append((entry, descriptor, None, None))
+        else:
+            # Older Releases and future ZIP-only updates retain automatic previews.
+            pending.append((entry, None, outline_preview(validated), outline_preview(validated, True) if model["kind"] == "controller" else None))
         print("Validated", model["kind"], model["id"], model["revision"])
     # Reject immutable-revision collisions before uploading any preview.
     old = {(entry["kind"], entry["id"]): entry for entry in existing["models"]}
-    for entry, _, _ in pending:
+    for entry, _, _, _ in pending:
         previous = old.get((entry["kind"], entry["id"]))
         require(not previous or previous["revision"] != entry["revision"] or previous["package"]["sha256"] == entry["package"]["sha256"], "Changed package reused an immutable revision")
     updates, previews = [], {}
-    for entry, front, rear in pending:
-        previews[entry["kind"], entry["id"]] = {}
+    for entry, provided, front, rear in pending:
+        previews[entry["kind"], entry["id"]] = {"front": provided} if provided else {}
         for side, data in (("front", front), ("rear", rear)):
             if data is None:
                 continue
