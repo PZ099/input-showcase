@@ -74,7 +74,17 @@ def update_changelog(site_dir, data_path=None):
         raise ValueError("Homepage must contain exactly one changelog marker pair")
     before, rest = source.split(START, 1)
     _, after = rest.split(END, 1)
-    target.write_text(before + render_changelog(releases) + after, encoding="utf-8")
+    rendered = before + render_changelog(releases) + after
+    version = releases[0]["version"]
+    rendered, download_count = re.subn(
+        r'href="downloads/INPUT%20Setup\.exe(?:\?[^\"]*)?"',
+        'href="downloads/INPUT%20Setup.exe?v=' + version + '"', rendered)
+    rendered, version_count = re.subn(
+        r'("softwareVersion"\s*:\s*")[^\"]+(")',
+        lambda match: match.group(1) + version + '.0' + match.group(2), rendered)
+    if download_count != 1 or version_count != 1:
+        raise ValueError("Expected one installer link and one software version")
+    target.write_text(rendered, encoding="utf-8")
     # Publish only the same three released entries visible in the HTML.
     (site_dir / "changelog.json").write_text(
         json.dumps({"releases": releases}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
