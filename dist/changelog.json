@@ -1,6 +1,18 @@
 {
   "releases": [
     {
+      "version": "1.0.13",
+      "status": "released",
+      "title": "新增10款模型与内存回收",
+      "changes": [
+        "新增5款手柄、5款鼠标及分类图集，模型库扩至182款。",
+        "关闭设置后回收模型内存，保留目录缩略图缓存。",
+        "修复键鼠与手柄切换后残留的输入反馈。",
+        "增加鼠标摇杆方向源与预设映射，按实际输入显示。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.13"
+    },
+    {
       "version": "1.0.12",
       "status": "released",
       "title": "G600侧键与运行优化",
@@ -22,16 +34,6 @@
         "减少固定图形重复计算，优化移动反馈的局部刷新。"
       ],
       "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.6"
-    },
-    {
-      "version": "1.0.5",
-      "status": "released",
-      "title": "降低运行占用",
-      "changes": [
-        "画面不变时减少重复刷新。",
-        "缓存手柄布局与模型缩放，降低绘制开销。"
-      ],
-      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.5"
     }
   ]
 }

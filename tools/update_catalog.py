@@ -243,7 +243,9 @@ def outline_preview(validated, rear=False):
         source = source.crop(bbox)
         if rear and model.get("controller", {}).get("effectiveStyles", {}).get("rearMirror", True):
             source = ImageOps.mirror(source)
-        source.thumbnail((238, 174), Image.Resampling.LANCZOS)
+        # Pillow 13 began applying reducing_gap to RGBA. Keep the exact source
+        # sampling used by existing previews, including strict rear verification.
+        source.thumbnail((238, 174), Image.Resampling.LANCZOS, reducing_gap=None)
         alpha = source.getchannel("A")
         shell = ImageChops.subtract(alpha.filter(ImageFilter.MaxFilter(3)), alpha.filter(ImageFilter.MinFilter(3)))
         # Decode pixels only. Remove photographic color, retaining shell and soft internal seams.

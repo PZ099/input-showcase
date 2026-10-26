@@ -32,6 +32,20 @@ class CatalogTests(unittest.TestCase):
         result = publisher.merge_catalog({'schemaVersion': 1, 'models': [], 'minimumClientVersion': '1.0.20'}, [])
         self.assertEqual(result['minimumClientVersion'], '1.0.20')
 
+    def test_large_rgba_preview_pixels_remain_compatible_across_pillow_versions(self):
+        image = Image.new('RGBA', (2048, 1024)); draw = ImageDraw.Draw(image)
+        draw.rounded_rectangle((70, 60, 1900, 970), 120, fill=(60, 70, 90, 250))
+        for k in range(20, 2000, 17):
+            draw.line((k, 5, max(0, k - 480), 1010), fill=(k % 255, 120, (k * 3) % 255, 80 + k % 170), width=3)
+        stream = io.BytesIO(); image.save(stream, format='PNG')
+        validated = {'model': {'id': 'preview-regression', 'kind': 'controller',
+            'images': {'rear': {'path': 'rear.png'}}, 'controller': {'effectiveStyles': {'rearMirror': True}}},
+            'members': {'rear.png': stream.getvalue()}}
+        with publisher.png(publisher.outline_preview(validated, True)) as preview:
+            self.assertEqual(preview.size, (256, 192))
+            self.assertEqual(hashlib.sha256(preview.tobytes()).hexdigest(),
+                '8aa4867c1101eba5938923b3e18dbbe0cee57f773aecd495fda2682af3582e02')
+
     def test_provided_rear_matches_actual_mirrored_source(self):
         validated = self.validated(); data = publisher.outline_preview(validated, True)
         result = publisher.provided_rear_preview(data, {'size': len(data), 'browser_download_url': 'https://example.invalid/rear.png'}, validated)
