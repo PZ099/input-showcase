@@ -185,7 +185,9 @@ def validate_package(blob, asset, renderer_version=1):
                 continue
             require(reference.get("id") == identity, "Mouse reference identity mismatch")
             positive(reference.get("width"), "mouse width"); positive(reference.get("height"), "mouse height")
-            require(len(reference.get("wheel", [])) == 4 and len(reference.get("wheelContour") or []) >= 3 and len(reference.get("sidePolygons", [])) == 2, "Incomplete exact mouse controls")
+            side_count = len(reference.get("sidePolygons", []))
+            mapped_cluster = reference.get("sideInputMode") == "mapped-cluster"
+            require(len(reference.get("wheel", [])) == 4 and len(reference.get("wheelContour") or []) >= 3 and side_count in ((0, 2) if mapped_cluster else (2,)), "Incomplete exact mouse controls")
             for key in ("outline", "left", "right"):
                 require(len(reference.get(key, [])) >= 3, "Missing mouse polygon: " + key)
         require(section.get("outline") is not None and (section.get("realistic") is None or images.get("realistic") is not None), "Mouse source/reference mismatch")
@@ -318,7 +320,7 @@ def merge_catalog(existing, updates):
         require(not old or old["revision"] != entry["revision"] or old["package"]["sha256"] == entry["package"]["sha256"], "Revision is immutable: change revision when model package changes")
         merged[key] = entry
     result = dict(existing)
-    required_client = "1.0.12"  # Current published calibration/display baseline; never lower an existing minimum.
+    required_client = "1.0.13"  # Current published calibration/display baseline; never lower an existing minimum.
     current_client = existing.get("minimumClientVersion", "1.0.0")
     result["minimumClientVersion"] = max((current_client, required_client), key=client_version)
     result["models"] = sorted(merged.values(), key=lambda item: (item["kind"], item["brand"], item["name"], item["id"]))

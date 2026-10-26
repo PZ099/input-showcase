@@ -24,9 +24,9 @@ class CatalogTests(unittest.TestCase):
     def previous(self):
         return {'revision': 'old', 'package': {'url': 'https://github.com/PZ099/input-showcase/releases/download/models-1.0.6/controller-dse-old.zip', 'bytes': 3, 'sha256': 'a' * 64}}
 
-    def test_minimum_client_is_1012(self):
+    def test_minimum_client_is_1013(self):
         result = publisher.merge_catalog({'schemaVersion': 1, 'models': [], 'minimumClientVersion': '1.0.6'}, [])
-        self.assertEqual(result['minimumClientVersion'], '1.0.12')
+        self.assertEqual(result['minimumClientVersion'], '1.0.13')
 
     def test_higher_minimum_is_not_lowered(self):
         result = publisher.merge_catalog({'schemaVersion': 1, 'models': [], 'minimumClientVersion': '1.0.20'}, [])
