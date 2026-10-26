@@ -201,7 +201,7 @@ def validate_package(blob, asset, renderer_version=1):
             require(isinstance(profile.get(key), dict) and all(type(profile[key].get(axis)) in (int, float) for axis in ("x", "y")), "Missing controller center: " + key)
         require(len(section.get("frontShoulders", [])) == 2 and isinstance(section.get("rearTriggers"), list), "Missing shoulder/trigger traces")
         back = section.get("backGeometry", {})
-        require(back.get("id") == identity and back.get("sourceKind") in ("photo", "schematic", "none") and len(back.get("backs", [])) == len(profile["Positions"]) == len(back.get("labelCenters", [])), "Rear calibration count/source mismatch")
+        require(back.get("id") == identity and back.get("sourceKind") in ("photo", "schematic", "official-native-vector", "none") and len(back.get("backs", [])) == len(profile["Positions"]) == len(back.get("labelCenters", [])), "Rear calibration count/source mismatch")
         feedback = section.get("feedback", {})
         for key in ("bumperActions", "rearTriggerActions", "frontSecondaryActions"):
             require(isinstance(feedback.get(key), list) and len(feedback[key]) == 2 and all(action in ACTIONS for action in feedback[key]), "Invalid physical control action")
@@ -254,6 +254,60 @@ def outline_preview(validated, rear=False):
         return stream.getvalue()
 
 
+
+# These revisions changed measured control caps, not their underlying source images.
+CAP_ONLY_CONTROLLERS = {"ds4", "ds5", "dse", "horiocta", "horioctapro", "probfg", "raiju3pro", "reflexpro", "revolution5pro"}
+
+
+def rear_source(model):
+    images = model.get("images", {})
+    return images.get("rearRealistic") or images.get("rear")
+
+
+def rear_web_descriptor(validated, descriptor):
+    source = rear_source(validated["model"])
+    require(source is not None, "Rear preview requires an actual rear source")
+    return dict(descriptor, sourceSha256=source["sha256"], sourceWidth=source["width"],
+                sourceHeight=source["height"], rearMirror=validated["model"].get("controller", {}).get("effectiveStyles", {}).get("rearMirror", True))
+
+
+def provided_rear_preview(data, asset, validated):
+    descriptor = preview_descriptor(data, asset)
+    expected = outline_preview(validated, True)
+    require(expected is not None, "Provided rear preview has no rear source")
+    with png(data) as actual, png(expected) as reference:
+        require(actual.size == reference.size and actual.tobytes() == reference.tobytes(),
+                "Provided rear preview does not match the model rear source")
+    return rear_web_descriptor(validated, descriptor)
+
+
+def retained_rear_preview(validated, previous, website_item, renderer_version):
+    model = validated["model"]
+    if model["id"] not in CAP_ONLY_CONTROLLERS or not previous or not website_item.get("rear"):
+        return None
+    if website_item.get("cloudRevision") != previous["revision"]:
+        return None
+    # Verify the immutable old package before retaining any of its website artwork.
+    spec = previous["package"]
+    url = urllib.parse.urlsplit(spec["url"])
+    prefix = f"/{REPOSITORY}/releases/download/"
+    require(url.scheme == "https" and url.hostname == "github.com" and url.path.startswith(prefix) and not url.query and not url.fragment,
+            "Previous package URL is outside this repository")
+    tag, name = urllib.parse.unquote(url.path[len(prefix):]).split("/", 1)
+    asset = {"name": name, "size": spec["bytes"], "digest": "sha256:" + spec["sha256"], "browser_download_url": spec["url"]}
+    old = validate_package(fetch_asset(asset, REPOSITORY, tag), asset, renderer_version)
+    before, after = rear_source(old["model"]), rear_source(model)
+    if not before or not after or any(before.get(key) != after.get(key) for key in ("sha256", "bytes", "width", "height")):
+        return None
+    old_mirror = old["model"].get("controller", {}).get("effectiveStyles", {}).get("rearMirror", True)
+    new_mirror = model.get("controller", {}).get("effectiveStyles", {}).get("rearMirror", True)
+    if old_mirror != new_mirror:
+        return None
+    descriptor = {"url": website_item["rear"], "width": website_item.get("rearWidth"), "height": website_item.get("rearHeight"),
+                  "retainedFromRevision": previous["revision"]}
+    return rear_web_descriptor(validated, descriptor)
+
+
 def merge_catalog(existing, updates):
     require(existing.get("schemaVersion") == 1 and isinstance(existing.get("models"), list), "Unsupported existing catalog")
     merged = {(entry["kind"], entry["id"]): entry for entry in existing["models"]}
@@ -264,7 +318,7 @@ def merge_catalog(existing, updates):
         require(not old or old["revision"] != entry["revision"] or old["package"]["sha256"] == entry["package"]["sha256"], "Revision is immutable: change revision when model package changes")
         merged[key] = entry
     result = dict(existing)
-    required_client = "1.0.6" if any(e["minimumRendererVersion"] >= 2 for e in merged.values()) else "1.0.0"
+    required_client = "1.0.12"  # Current published calibration/display baseline; never lower an existing minimum.
     current_client = existing.get("minimumClientVersion", "1.0.0")
     result["minimumClientVersion"] = max((current_client, required_client), key=client_version)
     result["models"] = sorted(merged.values(), key=lambda item: (item["kind"], item["brand"], item["name"], item["id"]))
@@ -306,6 +360,10 @@ def merge_website(existing, catalog, previews):
         # Normalize every old and new member, since legacy site family keys had another format.
         for field in ("name", "brand", "familyKey", "familyName"):
             item[field] = entry[field]
+        for field in ("frontSchematic", "rearSchematic"):
+            value = entry.get("web", {}).get(field)
+            if type(value) is bool:
+                item[field] = value
         item["versionLabel"] = entry["versionName"]
         item["cloudRevision"] = entry["revision"]
         if available.get("rear") and not item.get("rear"):
@@ -422,6 +480,8 @@ def main():
     existing = read_json((args.root / "cloud/catalog.json").read_bytes())
     site_path = args.root / "dist/models.json"
     site = read_json(site_path.read_bytes()) if site_path.exists() else {"models": []}
+    previous_entries = {(entry["kind"], entry["id"]): entry for entry in existing["models"]}
+    website_entries = {(entry["kind"], entry["id"]): entry for entry in site.get("models", [])}
     pending, seen = [], set()
     # Validate the complete batch and any provided preview before remote writes.
     # Exact reviewed previews are immutable Release assets; reuse rather than redraw.
@@ -433,7 +493,30 @@ def main():
         entry = {"id": model["id"], "kind": model["kind"], "revision": model["revision"], "minimumRendererVersion": model["minimumRendererVersion"], "package": validated["package"]}
         entry.update({key: model["metadata"][key] for key in ("name", "brand", "familyKey", "familyName", "versionName")})
         entry["contentSha256"] = sha(canonical(model))
+        if model["kind"] == "controller":
+            art = model["controller"].get("artwork", {})
+            web = {}
+            for field in ("frontSchematic", "rearSchematic"):
+                if type(art.get(field)) is bool:
+                    web[field] = art[field]
+            rear_kind = model["controller"].get("effectiveStyles", {}).get("rearSourceKind")
+            if "rearSchematic" not in web and rear_kind in ("photo", "schematic", "official-native-vector"):
+                web["rearSchematic"] = rear_kind != "photo"
+            if web:
+                entry["web"] = web
         preview_name = f"preview-{model['kind']}-{model['id']}-{model['revision']}.png"
+        rear_name = f"preview-{model['kind']}-{model['id']}-{model['revision']}-rear.png"
+        rear_assets = [item for item in release["assets"] if item["name"] == rear_name]
+        require(len(rear_assets) <= 1, "Duplicate canonical rear preview asset")
+        rear_descriptor = None
+        if rear_assets:
+            require(model["kind"] == "controller", "Only controllers may provide rear previews")
+            rear_asset = rear_assets[0]
+            rear_descriptor = provided_rear_preview(fetch_asset(rear_asset, args.repository, args.tag), rear_asset, validated)
+        elif model["kind"] == "controller":
+            rear_descriptor = retained_rear_preview(validated, previous_entries.get(key), website_entries.get(key, {}), args.renderer_version)
+        if rear_descriptor:
+            entry.setdefault("web", {})["rear"] = rear_descriptor
         provided = [item for item in release["assets"] if item["name"] == preview_name]
         require(len(provided) <= 1, "Duplicate canonical preview asset")
         if provided:
@@ -453,12 +536,16 @@ def main():
     updates, previews = [], {}
     for entry, provided, front, rear in pending:
         previews[entry["kind"], entry["id"]] = {"front": provided} if provided else {}
+        if entry.get("web", {}).get("rear"):
+            previews[entry["kind"], entry["id"]]["rear"] = entry["web"]["rear"]
         for side, data in (("front", front), ("rear", rear)):
             if data is None:
                 continue
             name = f"preview-{entry['kind']}-{entry['id']}-{entry['revision']}-{side}-{sha(data)[:16]}.png"
             descriptor = github.upload_preview(release, name, data)
             previews[entry["kind"], entry["id"]][side] = descriptor
+            if side == "rear":
+                entry.setdefault("web", {})["rear"] = descriptor
         entry["preview"] = previews[entry["kind"], entry["id"]]["front"]
         updates.append(entry)
     catalog = merge_catalog(existing, updates)

@@ -1,6 +1,18 @@
 {
   "releases": [
     {
+      "version": "1.0.12",
+      "status": "released",
+      "title": "G600侧键与运行优化",
+      "changes": [
+        "G600十二侧键常驻窄矩阵，逐键显示；网页演示同步。",
+        "关闭设置释放资源，隐藏后休眠；修复非置顶恢复，保留独立图标缓存。",
+        "新增冰原狼系列，细化多键鼠与手柄按键反馈。",
+        "补充手柄协议与显示映射；实机和游戏兼容仍需按设备确认。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.12"
+    },
+    {
       "version": "1.0.6",
       "status": "released",
       "title": "模型细化与显示映射",
@@ -20,16 +32,6 @@
         "缓存手柄布局与模型缩放，降低绘制开销。"
       ],
       "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.5"
-    },
-    {
-      "version": "1.0.4",
-      "status": "released",
-      "title": "图标离线缓存",
-      "changes": [
-        "模型图标独立缓存，删除模型后仍保留。",
-        "断网重启可查看已缓存图标，完整模型仍按需下载。"
-      ],
-      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.4"
     }
   ]
 }

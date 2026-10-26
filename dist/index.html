@@ -33,7 +33,7 @@
     "operatingSystem": "Windows 10, Windows 11",
     "applicationCategory": "UtilitiesApplication",
     "inLanguage": "zh-CN",
-    "softwareVersion": "1.0.6.0",
+    "softwareVersion": "1.0.12.0",
     "featureList": ["键盘与鼠标输入显示", "手柄摇杆、肩键与扳机反馈", "直播模式与锁定穿透", "按需下载设备模型", "写实与轮廓图集"]
   }
   </script>
@@ -64,7 +64,7 @@
         <h1>INPUT<span class="brand-period">.</span></h1>
         <p class="hero-intro">键鼠 · 手柄输入显示</p>
         <p class="hero-description">Windows 实时输入显示工具，适合游戏直播、Apex 身法教学与操作录制。按键、滚轮、摇杆和扳机，操作看得见。</p>
-        <div class="hero-actions"><a class="button primary" href="downloads/INPUT%20Setup.exe?v=1.0.6" download="INPUT Setup.exe">下载 <span aria-hidden="true">↓</span></a><a class="button text-button" href="#demo">演示 <span aria-hidden="true">↗</span></a></div>
+        <div class="hero-actions"><a class="button primary" href="downloads/INPUT%20Setup.exe?v=1.0.12" download="INPUT Setup.exe">下载 <span aria-hidden="true">↓</span></a><a class="button text-button" href="#demo">演示 <span aria-hidden="true">↗</span></a></div>
       </div>
       <div class="hero-art" aria-label="G502 X、Viper V3、ROG Harpe、DualSense、Xbox Elite 和飞智八爪鱼轮廓展示">
         <div class="art-grid"></div><div class="art-orbit"></div>
@@ -98,8 +98,14 @@
     <section id="changelog" class="section-width changelog-section reveal" aria-labelledby="changelog-title">
       <div class="section-heading"><h2 id="changelog-title">更新日志</h2><p class="changelog-note">最近三个版本</p></div>
       <div class="release-grid">
-        <article class="release-card is-latest" aria-labelledby="release-1.0.6">
-          <div class="release-version"><h3 id="release-1.0.6">1.0.6</h3><span class="release-latest">最新</span></div>
+        <article class="release-card is-latest" aria-labelledby="release-1.0.12">
+          <div class="release-version"><h3 id="release-1.0.12">1.0.12</h3><span class="release-latest">最新</span></div>
+          <p class="release-title">G600侧键与运行优化</p>
+          <ul class="release-changes"><li>G600十二侧键常驻窄矩阵，逐键显示；网页演示同步。</li><li>关闭设置释放资源，隐藏后休眠；修复非置顶恢复，保留独立图标缓存。</li><li>新增冰原狼系列，细化多键鼠与手柄按键反馈。</li><li>补充手柄协议与显示映射；实机和游戏兼容仍需按设备确认。</li></ul>
+          <a class="release-link" href="https://github.com/PZ099/input-showcase/releases/tag/v1.0.12" target="_blank" rel="noopener" aria-label="查看 INPUT 1.0.12 发布详情">发布详情 <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="release-card" aria-labelledby="release-1.0.6">
+          <div class="release-version"><h3 id="release-1.0.6">1.0.6</h3></div>
           <p class="release-title">模型细化与显示映射</p>
           <ul class="release-changes"><li>复核 168 款模型，修正鼠标按键边界与手柄方向键。</li><li>新增四种键盘外观，手柄可按型号学习和保存显示映射。</li><li>减少固定图形重复计算，优化移动反馈的局部刷新。</li></ul>
           <a class="release-link" href="https://github.com/PZ099/input-showcase/releases/tag/v1.0.6" target="_blank" rel="noopener" aria-label="查看 INPUT 1.0.6 发布详情">发布详情 <span aria-hidden="true">↗</span></a>
@@ -109,12 +115,6 @@
           <p class="release-title">降低运行占用</p>
           <ul class="release-changes"><li>画面不变时减少重复刷新。</li><li>缓存手柄布局与模型缩放，降低绘制开销。</li></ul>
           <a class="release-link" href="https://github.com/PZ099/input-showcase/releases/tag/v1.0.5" target="_blank" rel="noopener" aria-label="查看 INPUT 1.0.5 发布详情">发布详情 <span aria-hidden="true">↗</span></a>
-        </article>
-        <article class="release-card" aria-labelledby="release-1.0.4">
-          <div class="release-version"><h3 id="release-1.0.4">1.0.4</h3></div>
-          <p class="release-title">图标离线缓存</p>
-          <ul class="release-changes"><li>模型图标独立缓存，删除模型后仍保留。</li><li>断网重启可查看已缓存图标，完整模型仍按需下载。</li></ul>
-          <a class="release-link" href="https://github.com/PZ099/input-showcase/releases/tag/v1.0.4" target="_blank" rel="noopener" aria-label="查看 INPUT 1.0.4 发布详情">发布详情 <span aria-hidden="true">↗</span></a>
         </article>
       </div>
     </section>

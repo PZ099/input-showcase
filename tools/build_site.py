@@ -40,6 +40,9 @@ with zipfile.ZipFile(archive) as z:
 core=source/'dist' if (source/'dist/index.html').is_file() else source
 for name in ['index.html','style.css','app.js','demo.js','models.json','.nojekyll','sitemap.xml','icon.png']:
     shutil.copyfile(core/name,output/name)
+# Small tracked demo additions overlay the immutable baseline asset archive.
+if (core/'assets').is_dir():
+    shutil.copytree(core/'assets',output/'assets',dirs_exist_ok=True)
 update_changelog(output, core/'changelog.json')
 # Public IndexNow verification files live beside the project homepage.
 for key_file in core.glob('*.txt'):
