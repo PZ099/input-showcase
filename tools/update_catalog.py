@@ -206,7 +206,10 @@ def validate_package(blob, asset, renderer_version=1):
         require(back.get("id") == identity and back.get("sourceKind") in ("photo", "schematic", "official-native-vector", "none") and len(back.get("backs", [])) == len(profile["Positions"]) == len(back.get("labelCenters", [])), "Rear calibration count/source mismatch")
         feedback = section.get("feedback", {})
         for key in ("bumperActions", "rearTriggerActions", "frontSecondaryActions"):
-            require(isinstance(feedback.get(key), list) and len(feedback[key]) == 2 and all(action in ACTIONS for action in feedback[key]), "Invalid physical control action")
+            counts = (2,) if key == "bumperActions" else (0, 2)
+            require(isinstance(feedback.get(key), list) and len(feedback[key]) in counts and all(action in ACTIONS for action in feedback[key]), "Invalid physical control action")
+            if key == "rearTriggerActions" and not feedback[key]:
+                require(not section["rearTriggers"], "Rear trigger traces require actual action sources")
         styles = section.get("effectiveStyles", {})
         require(styles.get("dpadKind") in ("cross", "disc", "diamond", "separated") and len(styles.get("faceLabels", [])) == 4 and len(styles.get("menuLabels", [])) == 2 and isinstance(section.get("paths"), dict), "Missing generic controller styles/paths")
     return {"model": model, "members": members, "package": {"url": asset["browser_download_url"], "sha256": sha(blob), "bytes": len(blob), "expandedBytes": sum(map(len, members.values())), "fileCount": len(members)}}
@@ -322,7 +325,7 @@ def merge_catalog(existing, updates):
         require(not old or old["revision"] != entry["revision"] or old["package"]["sha256"] == entry["package"]["sha256"], "Revision is immutable: change revision when model package changes")
         merged[key] = entry
     result = dict(existing)
-    required_client = "1.0.13"  # Current published calibration/display baseline; never lower an existing minimum.
+    required_client = "1.0.14"  # Model defaults and explicit absent trigger feedback require this client.
     current_client = existing.get("minimumClientVersion", "1.0.0")
     result["minimumClientVersion"] = max((current_client, required_client), key=client_version)
     result["models"] = sorted(merged.values(), key=lambda item: (item["kind"], item["brand"], item["name"], item["id"]))

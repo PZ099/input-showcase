@@ -2,6 +2,8 @@ import copy
 import hashlib
 import importlib.util
 import io
+import json
+import zipfile
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -24,13 +26,50 @@ class CatalogTests(unittest.TestCase):
     def previous(self):
         return {'revision': 'old', 'package': {'url': 'https://github.com/PZ099/input-showcase/releases/download/models-1.0.6/controller-dse-old.zip', 'bytes': 3, 'sha256': 'a' * 64}}
 
-    def test_minimum_client_is_1013(self):
+    def test_minimum_client_is_1014(self):
         result = publisher.merge_catalog({'schemaVersion': 1, 'models': [], 'minimumClientVersion': '1.0.6'}, [])
-        self.assertEqual(result['minimumClientVersion'], '1.0.13')
+        self.assertEqual(result['minimumClientVersion'], '1.0.14')
 
     def test_higher_minimum_is_not_lowered(self):
         result = publisher.merge_catalog({'schemaVersion': 1, 'models': [], 'minimumClientVersion': '1.0.20'}, [])
         self.assertEqual(result['minimumClientVersion'], '1.0.20')
+
+    def controller_package(self, front_actions, rear_actions, rear_traces=None, bumpers=None):
+        validated = self.validated(); data = validated['members']['rear.png']
+        desc = dict(validated['model']['images']['rear'])
+        profile = {'Id': 'fixture'}
+        profile.update({key: [] for key in ('Positions', 'BackPhysicalSurfaces', 'Extras', 'RearExtras', 'FrontExtras')})
+        profile.update({key: {'x': .5, 'y': .5} for key in ('LS', 'RS', 'Dpad', 'Face', 'Back', 'Start')})
+        section = {'profile': profile, 'buttonMetrics': {'Id': 'fixture', 'FaceX': .02, 'FaceY': .02, 'MenuWidth': .03, 'MenuHeight': .02},
+            'frontShoulders': [[], []], 'rearTriggers': rear_traces or [],
+            'backGeometry': {'id': 'fixture', 'sourceKind': 'none', 'backs': [], 'labelCenters': []},
+            'feedback': {'bumperActions': ['lb', 'lt'] if bumpers is None else bumpers,
+                'frontSecondaryActions': front_actions, 'rearTriggerActions': rear_actions},
+            'effectiveStyles': {'dpadKind': 'disc', 'faceLabels': ['A', 'B', 'X', 'Y'], 'menuLabels': ['-', '+']}, 'paths': {}}
+        model = {'schemaVersion': 1, 'kind': 'controller', 'id': 'fixture', 'revision': 'test', 'minimumRendererVersion': 2,
+            'metadata': {'name': 'Fixture', 'brand': 'Test', 'familyKey': 'controller:fixture', 'familyName': 'Fixture', 'versionName': 'One'},
+            'images': {'front': desc}, 'files': [{'path': 'rear.png', 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}], 'controller': section}
+        stream = io.BytesIO()
+        with zipfile.ZipFile(stream, 'w') as archive:
+            archive.writestr('model.json', json.dumps(model)); archive.writestr('rear.png', data)
+        raw = stream.getvalue()
+        return raw, {'name': 'controller-fixture-test.zip', 'size': len(raw), 'browser_download_url': 'https://example.invalid/fixture.zip'}
+
+    def test_explicit_absent_trigger_feedback_is_supported(self):
+        raw, asset = self.controller_package([], [])
+        result = publisher.validate_package(raw, asset, 2)
+        self.assertEqual(result['model']['controller']['feedback']['frontSecondaryActions'], [])
+
+    def test_absent_feedback_cannot_hide_existing_rear_trace(self):
+        raw, asset = self.controller_package([], [], rear_traces=[[[.1, .1], [.2, .1], [.2, .2]]])
+        with self.assertRaises(ValueError):
+            publisher.validate_package(raw, asset, 2)
+
+    def test_empty_or_partial_action_strings_remain_invalid(self):
+        for front, rear, bumpers in [(['', ''], [], None), (['lt'], [], None), ([], [], [])]:
+            raw, asset = self.controller_package(front, rear, bumpers=bumpers)
+            with self.assertRaises(ValueError):
+                publisher.validate_package(raw, asset, 2)
 
     def test_large_rgba_preview_pixels_remain_compatible_across_pillow_versions(self):
         image = Image.new('RGBA', (2048, 1024)); draw = ImageDraw.Draw(image)
