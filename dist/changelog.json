@@ -1,6 +1,19 @@
 {
   "releases": [
     {
+      "version": "1.0.14",
+      "status": "released",
+      "title": "新增10款模型与M30方向反馈",
+      "changes": [
+        "新增5款手柄和5款鼠标及对照图集，模型库扩至192款。",
+        "M30方向盘支持型号默认LS及LS/Dpad/RS三种显示预设，保持六面键与真实L/R反馈。",
+        "修复关闭浮层、设置及捕获窗口时字体和图标的释放顺序。",
+        "补充全192款自动模型、输入、设置及短时占用率检查；真实设备和游戏验证范围见报告。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.14",
+      "date": "2026-10-28"
+    },
+    {
       "version": "1.0.13",
       "status": "released",
       "title": "新增10款模型与内存回收",
@@ -23,17 +36,6 @@
         "补充手柄协议与显示映射；实机和游戏兼容仍需按设备确认。"
       ],
       "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.12"
-    },
-    {
-      "version": "1.0.6",
-      "status": "released",
-      "title": "模型细化与显示映射",
-      "changes": [
-        "复核 168 款模型，修正鼠标按键边界与手柄方向键。",
-        "新增四种键盘外观，手柄可按型号学习和保存显示映射。",
-        "减少固定图形重复计算，优化移动反馈的局部刷新。"
-      ],
-      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.6"
     }
   ]
 }
