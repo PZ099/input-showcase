@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "version": "1.0.15",
+      "status": "released",
+      "title": "设置与滚动优化",
+      "changes": [
+        "设置界面统一深色样式，保留系列、筛选和返回位置，减少打开时重复加载。",
+        "优化长列表滚动快照与关闭后的资源释放。",
+        "修复四款内置模型离线首装及目录短暂占用造成的安装失败。",
+        "修正 HORI OCTA Pro 滑盘反馈及扩展按键文字裁切。",
+        "模型库仍为192款；实物、GPU和游戏测试尚有未验证范围。"
+      ],
+      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.15",
+      "date": "2026-10-29"
+    },
+    {
       "version": "1.0.14",
       "status": "released",
       "title": "新增10款模型与M30方向反馈",
@@ -24,18 +38,6 @@
         "增加鼠标摇杆方向源与预设映射，按实际输入显示。"
       ],
       "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.13"
-    },
-    {
-      "version": "1.0.12",
-      "status": "released",
-      "title": "G600侧键与运行优化",
-      "changes": [
-        "G600十二侧键常驻窄矩阵，逐键显示；网页演示同步。",
-        "关闭设置释放资源，隐藏后休眠；修复非置顶恢复，保留独立图标缓存。",
-        "新增冰原狼系列，细化多键鼠与手柄按键反馈。",
-        "补充手柄协议与显示映射；实机和游戏兼容仍需按设备确认。"
-      ],
-      "url": "https://github.com/PZ099/input-showcase/releases/tag/v1.0.12"
     }
   ]
 }
